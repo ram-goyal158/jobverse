@@ -1,15 +1,14 @@
 'use client'
 
-import { useEffect, useState, useMemo, Suspense } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Briefcase, MapPin, DollarSign, Building, Frown } from 'lucide-react'
+import { Search, MapPin, DollarSign, Building, Frown } from 'lucide-react'
 
-// ================= WRAPPED COMPONENT =================
-function JobsPageContent() {
+export default function JobsPageContent() {
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -122,17 +121,7 @@ function JobsPageContent() {
   )
 }
 
-// ================ MAIN EXPORT (WRAPPED IN Suspense) ====================
-export default function JobsPage() {
-  return (
-    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
-      <JobsPageContent />
-    </Suspense>
-  )
-}
-
-// ========== Components below remain unchanged ==========
-
+// JobCard component
 const JobCard = ({ job, variants }: { job: any, variants: any }) => (
   <motion.div
     variants={variants}
@@ -180,6 +169,7 @@ const JobCard = ({ job, variants }: { job: any, variants: any }) => (
   </motion.div>
 )
 
+// Skeleton Loader Component
 const SkeletonGrid = () => {
   const skeletonVariants = {
     hidden: { opacity: 0 },
@@ -221,6 +211,7 @@ const SkeletonGrid = () => {
   )
 }
 
+// No Jobs Found Component
 const NoJobsFound = () => (
   <motion.div
     className="text-center py-16"
