@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '@/firebase/config'
@@ -8,34 +8,28 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Briefcase, MapPin, DollarSign, Building, Frown } from 'lucide-react'
 
-// Main Jobs Page Component
-export default function JobsPage() {
-  // State Management
+// ================= WRAPPED COMPONENT =================
+function JobsPageContent() {
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-
-  // URL se search query lene ke liye
   const searchParams = useSearchParams()
 
-  // Component load hone par URL se search term set karna
   useEffect(() => {
     const queryFromUrl = searchParams.get('search')?.toLowerCase() || ''
     setSearchTerm(queryFromUrl)
   }, [searchParams])
 
-  // Firebase se data fetch karna
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true)
       try {
         const snapshot = await getDocs(collection(db, 'jobs'))
         const jobList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        // Ek chhota sa delay taaki loading animation dikhe
         setTimeout(() => {
           setJobs(jobList)
           setLoading(false)
-        }, 800) // 0.8 seconds delay
+        }, 800)
       } catch (error) {
         console.error('Error fetching jobs:', error)
         setLoading(false)
@@ -44,11 +38,9 @@ export default function JobsPage() {
     fetchJobs()
   }, [])
 
-  // Job filtering logic (real-time)
   const filteredJobs = useMemo(() => {
     const lowercasedSearchTerm = searchTerm.toLowerCase()
     if (!lowercasedSearchTerm) return jobs
-
     return jobs.filter(job =>
       job.title?.toLowerCase().includes(lowercasedSearchTerm) ||
       job.company?.toLowerCase().includes(lowercasedSearchTerm) ||
@@ -57,14 +49,11 @@ export default function JobsPage() {
     )
   }, [searchTerm, jobs])
 
-  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
   }
 
@@ -73,18 +62,13 @@ export default function JobsPage() {
     visible: {
       y: 0,
       opacity: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-      },
+      transition: { type: 'spring', stiffness: 100 },
     },
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        {/* === Hero Section with Search Bar === */}
         <motion.div 
           className="text-center mb-12"
           initial={{ opacity: 0, y: -20 }}
@@ -113,7 +97,6 @@ export default function JobsPage() {
           </div>
         </motion.div>
 
-        {/* === Jobs Grid Section === */}
         {loading ? (
           <SkeletonGrid />
         ) : (
@@ -139,7 +122,17 @@ export default function JobsPage() {
   )
 }
 
-// Job Card Component
+// ================ MAIN EXPORT (WRAPPED IN Suspense) ====================
+export default function JobsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading...</div>}>
+      <JobsPageContent />
+    </Suspense>
+  )
+}
+
+// ========== Components below remain unchanged ==========
+
 const JobCard = ({ job, variants }: { job: any, variants: any }) => (
   <motion.div
     variants={variants}
@@ -187,60 +180,58 @@ const JobCard = ({ job, variants }: { job: any, variants: any }) => (
   </motion.div>
 )
 
-// Skeleton Loader Component
 const SkeletonGrid = () => {
-    const skeletonVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-    };
-    const itemVariants = {
-        hidden: { opacity: 0, y: 10 },
-        visible: { opacity: 1, y: 0 }
-    };
+  const skeletonVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  }
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+  }
 
-    return (
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={skeletonVariants}
-          initial="hidden"
-          animate="visible"
-        >
-            {Array.from({ length: 6 }).map((_, i) => (
-                <motion.div key={i} variants={itemVariants} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                    <div className="animate-pulse flex flex-col h-full">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                            <div className="flex-1 space-y-2">
-                                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                            </div>
-                        </div>
-                        <div className="mt-4 space-y-3">
-                            <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/3"></div>
-                        </div>
-                        <div className="mt-6 flex-grow flex items-end">
-                             <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
+  return (
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      variants={skeletonVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {Array.from({ length: 6 }).map((_, i) => (
+        <motion.div key={i} variants={itemVariants} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="animate-pulse flex flex-col h-full">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+            <div className="mt-4 space-y-3">
+              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+            </div>
+            <div className="mt-6 flex-grow flex items-end">
+              <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+            </div>
+          </div>
         </motion.div>
-    )
+      ))}
+    </motion.div>
+  )
 }
 
-// No Jobs Found Component
 const NoJobsFound = () => (
-    <motion.div
-        className="text-center py-16"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-    >
-        <Frown className="mx-auto h-16 w-16 text-gray-400" />
-        <h3 className="mt-2 text-xl font-semibold text-gray-900">No Jobs Found</h3>
-        <p className="mt-1 text-gray-500">
-            Sorry, we couldn't find any jobs matching your search. Try different keywords.
-        </p>
-    </motion.div>
+  <motion.div
+    className="text-center py-16"
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.3 }}
+  >
+    <Frown className="mx-auto h-16 w-16 text-gray-400" />
+    <h3 className="mt-2 text-xl font-semibold text-gray-900">No Jobs Found</h3>
+    <p className="mt-1 text-gray-500">
+      Sorry, we couldn't find any jobs matching your search. Try different keywords.
+    </p>
+  </motion.div>
 )
