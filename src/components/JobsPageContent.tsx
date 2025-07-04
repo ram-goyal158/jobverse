@@ -160,11 +160,12 @@ const JobCard = ({ job, variants }: { job: any, variants: any }) => (
 
     <div className="mt-6 flex-grow flex items-end">
       <Link
-        href={/jobs/${job.slug || job.id}}
-        className="w-full text-center bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
-      >
-        View Details
-      </Link>
+  href={`/jobs/${job.slug || job.id}`}   // ✅ Yeh template literal sahi tarike se likha gaya hai
+  className="w-full text-center bg-blue-900 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
+>
+  View Details
+</Link>
+
     </div>
   </motion.div>
 )
