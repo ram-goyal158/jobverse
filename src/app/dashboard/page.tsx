@@ -27,7 +27,9 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen p-8 bg-gray-50">
-      <h1 className="text-3xl font-bold text-blue-900">Welcome, {user.name || user.email}</h1>
+      <h1 className="text-3xl font-bold text-blue-900">
+        Welcome, {(user as any).name || user.email}
+      </h1>
       <p className="mt-2 text-gray-600">This is your user dashboard.</p>
     </div>
   )
