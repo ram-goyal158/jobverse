@@ -1,9 +1,17 @@
 'use client'
 
-export default function JobsPageWrapper() {
-  return (
+import dynamic from 'next/dynamic'
+
+// Dynamically import the JobsPageContent component with SSR disabled
+const JobsPageContent = dynamic(() => import('@/components/JobsPageContent'), {
+  ssr: false,
+  loading: () => (
     <div className="min-h-screen flex items-center justify-center text-gray-500">
-      Jobs page content coming soon...
+      Loading jobs...
     </div>
   )
+})
+
+export default function JobsPageWrapper() {
+  return <JobsPageContent />
 }
