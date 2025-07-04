@@ -27,15 +27,13 @@ export default function Navbar() {
     ...(user ? [
       { 
         name: 'Dashboard', 
-        href: user.role === 'seeker' ? '/dashboard/seeker' : 
-             user.role === 'employer' ? '/dashboard/employer' : 
-             '/dashboard/admin' 
+        href: user.role === 'admin' ? '/dashboard/admin' : '/dashboard' 
       },
       { name: 'Profile', href: '/profile' }
     ] : [])
   ]
 
-  if (loading) return null // or loading spinner
+  if (loading) return null
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
